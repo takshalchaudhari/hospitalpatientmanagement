@@ -12,9 +12,14 @@ import { AuthAPI } from './services/api';
 import { connectSocket, disconnectSocket } from './services/socket';
 
 const AuthContext = createContext(null);
+const ThemeContext = createContext(null);
 
 export function useAuth() {
   return useContext(AuthContext);
+}
+
+export function useTheme() {
+  return useContext(ThemeContext);
 }
 
 function FullPageLoader({ label }) {
@@ -83,6 +88,29 @@ function AuthProvider({ children }) {
   }), [user, loading]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}
+
+function ThemeProvider({ children }) {
+  const [theme, setTheme] = useState(() => {
+    const savedTheme = window.localStorage.getItem('shmf_theme');
+    if (savedTheme === 'light' || savedTheme === 'dark') {
+      return savedTheme;
+    }
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    window.localStorage.setItem('shmf_theme', theme);
+  }, [theme]);
+
+  const value = useMemo(() => ({
+    theme,
+    setTheme,
+    toggleTheme: () => setTheme((current) => (current === 'dark' ? 'light' : 'dark'))
+  }), [theme]);
+
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 
 function ProtectedRoute({ children, roles }) {
@@ -181,8 +209,10 @@ function AppRoutes() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <AppRoutes />
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
+    </ThemeProvider>
   );
 }

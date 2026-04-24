@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { useAuth } from '../App';
+import { useAuth, useTheme } from '../App';
 
 function navItems(role) {
   const common = [
@@ -22,14 +22,26 @@ function navItems(role) {
 
 export default function AppShell({ children }) {
   const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
 
   return (
     <div className="shell">
       <aside className="shell-sidebar">
-        <div className="brand-block">
-          <span className="brand-chip">Clinical intelligence layer</span>
+        <div className="brand-block brand-block-shell">
+          <span className="brand-chip">Luxury clinical workspace</span>
           <h1>SHMF</h1>
-          <p>Secure patient flow visibility for high-trust hospital operations.</p>
+          <p>Executive patient operations for premium care environments and high-trust hospital teams.</p>
+        </div>
+
+        <div className="sidebar-panel">
+          <div className="sidebar-panel-head">
+            <strong>Environment</strong>
+            <span>{theme === 'dark' ? 'Night suite' : 'Day suite'}</span>
+          </div>
+          <button className="theme-toggle" type="button" onClick={toggleTheme}>
+            <span>{theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}</span>
+            <strong>{theme === 'dark' ? 'Dark' : 'Light'}</strong>
+          </button>
         </div>
 
         <nav className="shell-nav">
@@ -60,14 +72,14 @@ export default function AppShell({ children }) {
       <div className="shell-main">
         <header className="shell-header">
           <div className="header-copy">
-            <p className="eyebrow">Clinical operations workspace</p>
-            <h2>Real-time patient monitoring</h2>
+            <p className="eyebrow">Calm luxury healthcare workspace</p>
+            <h2>Real-time patient command suite</h2>
             <p className="header-subtitle">
-              Fast visibility, role-based controls, and a calmer interface for critical hospital workflows.
+              A denser, premium control surface for patient visibility, role-aware workflows, and protected operational decision-making.
             </p>
           </div>
           <div className="header-status">
-            <span className="status-pill online">Encrypted session active</span>
+            <span className="status-pill online">Encrypted clinical session</span>
             <span className="status-pill neutral">Role: {user?.role}</span>
           </div>
         </header>

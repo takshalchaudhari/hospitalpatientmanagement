@@ -13,7 +13,7 @@ export default function AuditLogs() {
       <div className="section-heading">
         <div>
           <p className="eyebrow">Audit visibility</p>
-          <h3>Recent administrative and system events</h3>
+          <h3>Administrative and system event ledger</h3>
         </div>
       </div>
       <div className="list-stack">

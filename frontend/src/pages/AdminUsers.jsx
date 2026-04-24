@@ -61,8 +61,8 @@ export default function AdminUsers() {
       <section className="panel">
         <div className="section-heading">
           <div>
-            <p className="eyebrow">Admin control</p>
-            <h3>Create user account</h3>
+            <p className="eyebrow">Executive administration</p>
+            <h3>Create staff and doctor accounts</h3>
           </div>
         </div>
         {error ? <div className="alert error">{error}</div> : null}
@@ -84,7 +84,7 @@ export default function AdminUsers() {
         <div className="section-heading">
           <div>
             <p className="eyebrow">Managed accounts</p>
-            <h3>User lifecycle</h3>
+            <h3>User lifecycle command board</h3>
           </div>
         </div>
         <div className="list-stack">

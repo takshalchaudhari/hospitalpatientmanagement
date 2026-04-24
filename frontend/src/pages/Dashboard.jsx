@@ -62,22 +62,22 @@ export default function Dashboard() {
       <section className="panel wide">
         <div className="section-heading">
           <div>
-            <p className="eyebrow">Operations snapshot</p>
-            <h3>Clinical floor overview</h3>
+            <p className="eyebrow">Executive overview</p>
+            <h3>Hospital command overview</h3>
           </div>
         </div>
         <div className="hero-banner">
           <div>
-            <span className="hero-banner-tag">Live hospital overview</span>
-            <h4>One workspace for patient flow, event visibility, and role-based action.</h4>
+            <span className="hero-banner-tag">Luxury care operations</span>
+            <h4>One premium workspace for patient movement, event clarity, and high-trust clinical action.</h4>
             <p>
-              Monitor current patient load, review recent detections, and move directly into patient history without losing context.
+              Track live occupancy, identify priority watchlists, and move directly into patient history without losing the narrative of care.
             </p>
           </div>
           <div className="hero-banner-stack">
-            <span>Encrypted sessions</span>
-            <span>Audit-aware activity</span>
-            <span>Patient-linked timelines</span>
+            <span>Dual-theme premium shell</span>
+            <span>Audit-aware clinical activity</span>
+            <span>Patient-linked executive timelines</span>
           </div>
         </div>
         <div className="stats-grid">
@@ -104,7 +104,7 @@ export default function Dashboard() {
         <div className="section-heading">
           <div>
             <p className="eyebrow">Patients</p>
-            <h3>Patient directory</h3>
+            <h3>Active patient suite</h3>
           </div>
         </div>
         <div className="list-stack">
@@ -126,8 +126,8 @@ export default function Dashboard() {
       <section className="panel">
         <div className="section-heading">
           <div>
-            <p className="eyebrow">Activity</p>
-            <h3>Recent events</h3>
+            <p className="eyebrow">Live activity</p>
+            <h3>Recent clinical and belt signals</h3>
           </div>
         </div>
         <div className="list-stack">

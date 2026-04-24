@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '../App';
+import { useAuth, useTheme } from '../App';
 import { AuthAPI, ProfileAPI } from '../services/api';
 
 export default function ProfileSettings() {
   const { user, reloadSession } = useAuth();
+  const { theme, setTheme } = useTheme();
   const [profile, setProfile] = useState(null);
   const [message, setMessage] = useState('');
   const [passwords, setPasswords] = useState({ currentPassword: '', nextPassword: '' });
@@ -41,7 +42,7 @@ export default function ProfileSettings() {
         <div className="section-heading">
           <div>
             <p className="eyebrow">Profile</p>
-            <h3>Personal settings</h3>
+            <h3>Personal suite settings</h3>
           </div>
         </div>
         {message ? <div className="alert success">{message}</div> : null}
@@ -50,6 +51,10 @@ export default function ProfileSettings() {
           <input value={profile.email || ''} onChange={(e) => setProfile({ ...profile, email: e.target.value })} placeholder="Email" />
           <input value={profile.username || ''} disabled placeholder="Username" />
           <input value={profile.role || ''} disabled placeholder="Role" />
+          <select value={theme} onChange={(e) => setTheme(e.target.value)}>
+            <option value="light">Light suite</option>
+            <option value="dark">Dark suite</option>
+          </select>
           <button className="primary-btn" type="submit">Save profile</button>
         </form>
       </section>

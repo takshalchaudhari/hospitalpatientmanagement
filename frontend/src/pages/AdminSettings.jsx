@@ -23,8 +23,8 @@ export default function AdminSettings() {
     <section className="panel">
       <div className="section-heading">
         <div>
-          <p className="eyebrow">Admin control</p>
-          <h3>System settings</h3>
+          <p className="eyebrow">Executive administration</p>
+          <h3>System environment settings</h3>
         </div>
       </div>
       {message ? <div className="alert success">{message}</div> : null}

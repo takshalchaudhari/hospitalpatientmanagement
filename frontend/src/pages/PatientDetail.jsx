@@ -60,7 +60,7 @@ export default function PatientDetail() {
       <section className="panel wide">
         <div className="section-heading">
           <div>
-            <p className="eyebrow">Patient profile</p>
+            <p className="eyebrow">Patient suite</p>
             <h3>{patient.name}</h3>
           </div>
           <span className="status-pill neutral">{patient.status}</span>
@@ -77,7 +77,7 @@ export default function PatientDetail() {
         <div className="section-heading">
           <div>
             <p className="eyebrow">Clinical notes</p>
-            <h3>Care annotations</h3>
+            <h3>Care intelligence</h3>
           </div>
         </div>
         {user.role !== 'staff' ? (
@@ -110,7 +110,7 @@ export default function PatientDetail() {
         <div className="section-heading">
           <div>
             <p className="eyebrow">Patient history</p>
-            <h3>Unified care timeline</h3>
+            <h3>Unified luxury care timeline</h3>
           </div>
         </div>
         <div className="timeline">
