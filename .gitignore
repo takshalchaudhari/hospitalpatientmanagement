@@ -1,0 +1,13 @@
+node_modules/
+backend/node_modules/
+frontend/node_modules/
+dist/
+build/
+frontend/dist/
+*.log
+backend/backend.log
+backend/backend.err.log
+.env
+backend/.env
+frontend/.env
+backend/hospital.db
