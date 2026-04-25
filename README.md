@@ -340,6 +340,12 @@ Relevant implementation files:
 
 ---
 
+## License
+
+This project is licensed under the `MIT` License. See [LICENSE](LICENSE).
+
+---
+
 ## Design Direction
 
 The current design system aims for:

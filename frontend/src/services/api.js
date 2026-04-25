@@ -1,7 +1,19 @@
 import axios from 'axios';
 
+function resolveBackendUrl() {
+  if (import.meta.env.VITE_BACKEND_URL) {
+    return import.meta.env.VITE_BACKEND_URL;
+  }
+
+  if (import.meta.env.DEV) {
+    return `${window.location.protocol}//${window.location.hostname}:4000`;
+  }
+
+  return window.location.origin;
+}
+
 export const API_BASE_URL = import.meta.env.VITE_BACKEND_URL
-  || (import.meta.env.DEV ? 'http://127.0.0.1:4000' : window.location.origin);
+  || resolveBackendUrl();
 
 function getCookie(name) {
   const match = document.cookie.split('; ').find((entry) => entry.startsWith(`${name}=`));
@@ -32,11 +44,18 @@ api.interceptors.response.use(
     const isAuthPath = originalRequest?.url?.includes('/api/auth/login') || originalRequest?.url?.includes('/api/auth/refresh');
     if (error.response?.status === 401 && !isAuthPath && !originalRequest._retry) {
       originalRequest._retry = true;
-      refreshPromise = refreshPromise || api.post('/api/auth/refresh').finally(() => {
+      refreshPromise = refreshPromise || api.post('/api/auth/refresh').catch((refreshError) => {
+        if (refreshError.response?.status === 401) {
+          return null;
+        }
+        throw refreshError;
+      }).finally(() => {
         refreshPromise = null;
       });
-      await refreshPromise;
-      return api(originalRequest);
+      const refreshResult = await refreshPromise;
+      if (refreshResult) {
+        return api(originalRequest);
+      }
     }
     throw error;
   }
@@ -57,11 +76,14 @@ export const ProfileAPI = {
 };
 
 export const PatientAPI = {
-  getPatients: () => api.get('/api/patients'),
+  getPatients: (params) => api.get('/api/patients', { params }),
+  getSupportData: () => api.get('/api/patients/support-data'),
   getPatient: (patientId) => api.get(`/api/patients/${patientId}`),
   getRecentActivity: (limit = 10) => api.get('/api/patients/recent-activity', { params: { limit } }),
   createPatient: (payload) => api.post('/api/patients', payload),
   updatePatient: (patientId, payload) => api.patch(`/api/patients/${patientId}`, payload),
+  archivePatient: (patientId) => api.delete(`/api/patients/${patientId}`),
+  restorePatient: (patientId) => api.post(`/api/patients/${patientId}/restore`),
   addNote: (patientId, noteText, noteType) => api.post(`/api/patients/${patientId}/notes`, { noteText, noteType })
 };
 

@@ -8,11 +8,29 @@ const router = express.Router();
 
 router.use(authMiddleware);
 
+router.get('/support-data', requirePermission('patients:read'), async (req, res) => {
+  const doctors = await all(
+    `SELECT id, username, full_name
+     FROM users
+     WHERE role = 'doctor' AND status = 'active'
+     ORDER BY full_name ASC, username ASC`
+  );
+  const wards = await all(
+    `SELECT DISTINCT room
+     FROM patients
+     WHERE archived_at IS NULL
+     ORDER BY room ASC`
+  );
+  return res.json({ doctors, wards: wards.map((row) => row.room).filter(Boolean) });
+});
+
 router.get('/', requirePermission('patients:read'), async (req, res) => {
+  const includeArchived = String(req.query.includeArchived || '') === '1';
   const patients = await all(
     `SELECT p.*, u.full_name AS assigned_doctor_name
      FROM patients p
      LEFT JOIN users u ON u.id = p.assigned_doctor_id
+     ${includeArchived ? '' : 'WHERE p.archived_at IS NULL'}
      ORDER BY p.updated_at DESC, p.created_at DESC`
   );
   return res.json({ patients });
@@ -34,7 +52,13 @@ router.get('/recent-activity', requirePermission('patients:read'), async (req, r
 
 router.get('/:id', requirePermission('patients:read'), async (req, res) => {
   const patientId = Number.parseInt(req.params.id, 10);
-  const patient = await get('SELECT * FROM patients WHERE id = ?', [patientId]);
+  const patient = await get(
+    `SELECT p.*, u.full_name AS assigned_doctor_name
+     FROM patients p
+     LEFT JOIN users u ON u.id = p.assigned_doctor_id
+     WHERE p.id = ?`,
+    [patientId]
+  );
   if (!patient) {
     return res.status(404).json({ message: 'Patient not found' });
   }
@@ -104,6 +128,61 @@ router.post('/', requireCsrf, requirePermission('patients:write'), async (req, r
 });
 
 router.patch('/:id', requireCsrf, requirePermission('patients:write'), async (req, res) => {
+  try {
+    const patientId = Number.parseInt(req.params.id, 10);
+    const existing = await get('SELECT * FROM patients WHERE id = ?', [patientId]);
+    if (!existing) {
+      return res.status(404).json({ message: 'Patient not found' });
+    }
+
+    const age = req.body?.age !== undefined
+      ? Number.parseInt(req.body.age, 10)
+      : existing.age;
+    if (!Number.isFinite(age) || age < 0 || age > 130) {
+      throw badRequest('Age must be a valid number between 0 and 130');
+    }
+
+    await run(
+      `UPDATE patients
+       SET name = ?, age = ?, gender = ?, diagnosis = ?, room = ?, bed = ?, photo_url = ?, status = ?, assigned_doctor_id = ?, archived_at = ?, updated_at = CURRENT_TIMESTAMP
+       WHERE id = ?`,
+      [
+        req.body?.name !== undefined ? String(req.body.name).trim() : existing.name,
+        age,
+        req.body?.gender !== undefined ? String(req.body.gender).trim() : existing.gender,
+        req.body?.diagnosis !== undefined ? String(req.body.diagnosis).trim() : existing.diagnosis,
+        req.body?.room !== undefined ? String(req.body.room).trim() : existing.room,
+        req.body?.bed !== undefined ? String(req.body.bed).trim() : existing.bed,
+        req.body?.photoUrl !== undefined ? (req.body.photoUrl ? String(req.body.photoUrl).trim() : null) : existing.photo_url,
+        req.body?.status !== undefined ? String(req.body.status).trim() : existing.status,
+        req.body?.assignedDoctorId !== undefined ? (req.body.assignedDoctorId || null) : existing.assigned_doctor_id,
+        req.body?.archivedAt !== undefined ? req.body.archivedAt : existing.archived_at,
+        patientId
+      ]
+    );
+    const patient = await get(
+      `SELECT p.*, u.full_name AS assigned_doctor_name
+       FROM patients p
+       LEFT JOIN users u ON u.id = p.assigned_doctor_id
+       WHERE p.id = ?`,
+      [patientId]
+    );
+    await auditLog({
+      actorUserId: req.user.id,
+      action: 'patients.update',
+      targetType: 'patient',
+      targetId: String(patientId),
+      details: { status: patient.status, room: patient.room, bed: patient.bed },
+      ipAddress: req.ip
+    });
+    return res.json({ patient });
+  } catch (error) {
+    const status = error.statusCode || 500;
+    return res.status(status).json({ message: error.message || 'Unable to update patient' });
+  }
+});
+
+router.delete('/:id', requireCsrf, requirePermission('patients:write'), async (req, res) => {
   const patientId = Number.parseInt(req.params.id, 10);
   const existing = await get('SELECT * FROM patients WHERE id = ?', [patientId]);
   if (!existing) {
@@ -112,29 +191,51 @@ router.patch('/:id', requireCsrf, requirePermission('patients:write'), async (re
 
   await run(
     `UPDATE patients
-     SET name = ?, age = ?, gender = ?, diagnosis = ?, room = ?, bed = ?, photo_url = ?, status = ?, assigned_doctor_id = ?, updated_at = CURRENT_TIMESTAMP
+     SET archived_at = CURRENT_TIMESTAMP, status = 'archived', updated_at = CURRENT_TIMESTAMP
      WHERE id = ?`,
-    [
-      req.body?.name ? String(req.body.name).trim() : existing.name,
-      req.body?.age ? Number.parseInt(req.body.age, 10) : existing.age,
-      req.body?.gender ? String(req.body.gender).trim() : existing.gender,
-      req.body?.diagnosis ? String(req.body.diagnosis).trim() : existing.diagnosis,
-      req.body?.room ? String(req.body.room).trim() : existing.room,
-      req.body?.bed ? String(req.body.bed).trim() : existing.bed,
-      req.body?.photoUrl !== undefined ? req.body.photoUrl : existing.photo_url,
-      req.body?.status ? String(req.body.status).trim() : existing.status,
-      req.body?.assignedDoctorId !== undefined ? req.body.assignedDoctorId : existing.assigned_doctor_id,
-      patientId
-    ]
+    [patientId]
   );
-  const patient = await get('SELECT * FROM patients WHERE id = ?', [patientId]);
   await auditLog({
     actorUserId: req.user.id,
-    action: 'patients.update',
+    action: 'patients.archive',
     targetType: 'patient',
     targetId: String(patientId),
+    details: { name: existing.name },
     ipAddress: req.ip
   });
+  return res.json({ message: 'Patient archived' });
+});
+
+router.post('/:id/restore', requireCsrf, requirePermission('patients:write'), async (req, res) => {
+  const patientId = Number.parseInt(req.params.id, 10);
+  const existing = await get('SELECT * FROM patients WHERE id = ?', [patientId]);
+  if (!existing) {
+    return res.status(404).json({ message: 'Patient not found' });
+  }
+
+  await run(
+    `UPDATE patients
+     SET archived_at = NULL,
+         status = CASE WHEN status = 'archived' THEN 'stable' ELSE status END,
+         updated_at = CURRENT_TIMESTAMP
+     WHERE id = ?`,
+    [patientId]
+  );
+  await auditLog({
+    actorUserId: req.user.id,
+    action: 'patients.restore',
+    targetType: 'patient',
+    targetId: String(patientId),
+    details: { name: existing.name },
+    ipAddress: req.ip
+  });
+  const patient = await get(
+    `SELECT p.*, u.full_name AS assigned_doctor_name
+     FROM patients p
+     LEFT JOIN users u ON u.id = p.assigned_doctor_id
+     WHERE p.id = ?`,
+    [patientId]
+  );
   return res.json({ patient });
 });
 

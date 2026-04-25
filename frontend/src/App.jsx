@@ -42,6 +42,12 @@ function AuthProvider({ children }) {
       setUser(res.data.user);
       connectSocket();
     } catch (error) {
+      if (error.response?.status === 401) {
+        setUser(null);
+        disconnectSocket();
+        setLoading(false);
+        return;
+      }
       try {
         await AuthAPI.refresh();
         const res = await AuthAPI.me();

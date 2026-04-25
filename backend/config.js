@@ -6,8 +6,10 @@ function toNumber(value, fallback) {
 }
 
 const isProduction = process.env.NODE_ENV === 'production';
-const frontendUrl = process.env.FRONTEND_URL || 'http://127.0.0.1:5173';
-const frontendOrigins = frontendUrl.split(',').map((value) => value.trim()).filter(Boolean);
+const frontendUrl = process.env.FRONTEND_URL;
+const frontendOrigins = frontendUrl
+  ? frontendUrl.split(',').map((value) => value.trim()).filter(Boolean)
+  : ['http://127.0.0.1:5173', 'http://localhost:5173'];
 
 module.exports = {
   isProduction,

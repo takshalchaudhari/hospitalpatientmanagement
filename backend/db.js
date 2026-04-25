@@ -156,6 +156,7 @@ async function upgradeLegacySchema() {
 
   await ensureColumn('patients', 'status', "TEXT NOT NULL DEFAULT 'stable'");
   await ensureColumn('patients', 'assigned_doctor_id', 'INTEGER');
+  await ensureColumn('patients', 'archived_at', 'DATETIME');
   await ensureColumn('patients', 'created_at', 'DATETIME');
   await ensureColumn('patients', 'updated_at', 'DATETIME');
 
