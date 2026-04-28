@@ -256,13 +256,8 @@ export default function Dashboard() {
           <div className="section-heading">
             <div>
               <p className="eyebrow">Hospital overview</p>
-              <h3>Today&apos;s patient operations</h3>
+              <h3>Today at a glance</h3>
             </div>
-            {canManagePatients ? (
-              <button className="primary-btn" type="button" onClick={openCreateDrawer}>
-                Add Patient
-              </button>
-            ) : null}
           </div>
           {feedback ? <div className="alert success">{feedback}</div> : null}
           {error ? <div className="alert error">{error}</div> : null}

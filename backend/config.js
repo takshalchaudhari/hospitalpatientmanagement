@@ -22,7 +22,7 @@ module.exports = {
   deviceApiKey: process.env.DEVICE_API_KEY || 'device-demo-key-change-me',
   bootstrapAdmin: {
     username: process.env.BOOTSTRAP_ADMIN_USERNAME || 'admin',
-    password: process.env.BOOTSTRAP_ADMIN_PASSWORD || 'Admin@123456',
+    password: process.env.BOOTSTRAP_ADMIN_PASSWORD || 'admin123',
     fullName: process.env.BOOTSTRAP_ADMIN_FULL_NAME || 'System Administrator',
     email: process.env.BOOTSTRAP_ADMIN_EMAIL || 'admin@shmf.local'
   },

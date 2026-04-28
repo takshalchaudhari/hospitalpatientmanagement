@@ -32,11 +32,11 @@ export default function Login() {
     <div className="login-page">
       <section className="login-panel">
         <div className="login-panel-topbar">
-          <button className="theme-toggle theme-toggle-auth" type="button" onClick={toggleTheme}>
-            <span>{theme === 'dark' ? 'Day mode' : 'Night mode'}</span>
-            <strong>{theme === 'dark' ? 'Dark' : 'Light'}</strong>
+          <button className="theme-toggle theme-toggle-auth compact-toggle" type="button" onClick={toggleTheme}>
+            <strong>{theme === 'dark' ? 'Light mode' : 'Dark mode'}</strong>
           </button>
         </div>
+        <div className="login-brand-mark">SHMF</div>
         <h1>Sentinel Health Monitoring Framework</h1>
       </section>
 

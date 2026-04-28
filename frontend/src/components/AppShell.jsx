@@ -51,9 +51,9 @@ export default function AppShell({ children }) {
         </div>
 
         <div className="brand-block brand-block-shell">
-          <span className="brand-chip">Hospital workspace</span>
+          <span className="brand-chip">Care workspace</span>
           <h1>SHMF</h1>
-          <p>Clinical operations in one focused workspace.</p>
+          <p>Elegant hospital operations with faster patient control.</p>
         </div>
 
         <nav className="shell-nav">
@@ -76,15 +76,17 @@ export default function AppShell({ children }) {
       <div className="shell-main">
         <header className="shell-header">
           <div className="header-copy">
-            <p className="eyebrow">Ocean care interface</p>
-            <h2>Patient operations dashboard</h2>
+            <p className="eyebrow">Clinical command center</p>
+            <h2>Patient care dashboard</h2>
             <p className="header-subtitle">
-              Clear patient visibility, lighter visuals, and faster hospital workflows without the heavy chrome.
+              Clear visibility, calmer visuals, and sharper hospital workflows in one refined workspace.
             </p>
           </div>
           <div className="header-status header-status-top">
-            <span className="status-pill online">Encrypted clinical session</span>
-            <span className="status-pill neutral">Role: {user?.role}</span>
+            <div className="header-meta">
+              <span>Role: {user?.role}</span>
+              <small>Secure session active</small>
+            </div>
             <div className="profile-menu-wrap" ref={menuRef}>
               <button
                 className="profile-avatar"
